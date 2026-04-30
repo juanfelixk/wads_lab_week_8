@@ -28,7 +28,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
-import { Loader2, Pencil, Trash2, Plus } from "lucide-react";
+import { Loader2, Pencil, Trash2, Plus, CheckSquare2 } from "lucide-react";
 
 export type TodoItem = {
   id: string;
@@ -143,100 +143,127 @@ export function TodoList({ initialTodos }: TodoListProps) {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
+      {/* Header */}
       <div>
-        <h2 className="text-2xl font-bold tracking-tight">My Todo List</h2>
-        <p className="text-muted-foreground">
-          Add, edit, and complete your tasks.
-        </p>
+        <h1 className="text-4xl font-bold text-slate-50 mb-2">My Todos</h1>
+        <p className="text-slate-400">Create, edit, and organize your tasks efficiently</p>
       </div>
 
-      <Card className="shadow-sm">
-        <CardHeader className="pb-3">
-          <h3 className="font-semibold">Add a new todo</h3>
+      {/* Add Todo Card */}
+      <Card className="bg-slate-800 border-slate-700">
+        <CardHeader>
+          <h3 className="font-semibold text-slate-50 flex items-center gap-2">
+            <Plus className="w-5 h-5 text-emerald-500" />
+            Add New Task
+          </h3>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleCreate} className="flex flex-col gap-4 sm:flex-row sm:items-end">
-            <div className="flex-1 space-y-2">
-              <Label htmlFor="title">Title</Label>
-              <Input
-                id="title"
-                name="title"
-                placeholder="What needs to be done?"
-                required
-                maxLength={500}
-                disabled={isAdding}
-                className="h-10"
-              />
+          <form onSubmit={handleCreate} className="space-y-4">
+            <div className="grid md:grid-cols-3 gap-4">
+              <div className="md:col-span-2">
+                <Label htmlFor="title" className="text-slate-300 mb-2 block">
+                  Task Title
+                </Label>
+                <Input
+                  id="title"
+                  name="title"
+                  placeholder="What needs to be done?"
+                  required
+                  maxLength={500}
+                  disabled={isAdding}
+                  className="bg-slate-700 border-slate-600 text-slate-50 placeholder:text-slate-500 focus:border-emerald-500"
+                />
+              </div>
+              <div className="md:col-span-1 flex flex-col justify-end">
+                <Button
+                  type="submit"
+                  disabled={isAdding}
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white w-full"
+                >
+                  {isAdding ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Adding...
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="mr-2 h-4 w-4" />
+                      Add Task
+                    </>
+                  )}
+                </Button>
+              </div>
             </div>
-            <div className="flex-1 space-y-2 sm:max-w-xs">
-              <Label htmlFor="description">Description (optional)</Label>
+            <div>
+              <Label htmlFor="description" className="text-slate-300 mb-2 block">
+                Description (optional)
+              </Label>
               <Input
                 id="description"
                 name="description"
-                placeholder="Add details…"
+                placeholder="Add task details..."
                 maxLength={1000}
                 disabled={isAdding}
-                className="h-10"
+                className="bg-slate-700 border-slate-600 text-slate-50 placeholder:text-slate-500 focus:border-emerald-500"
               />
             </div>
-            <Button type="submit" disabled={isAdding} className="h-10 shrink-0">
-              {isAdding ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Adding…
-                </>
-              ) : (
-                <>
-                  <Plus className="mr-2 h-4 w-4" />
-                  Add
-                </>
-              )}
-            </Button>
           </form>
         </CardContent>
       </Card>
 
-      <Card className="shadow-sm">
-        <CardHeader className="pb-3">
-          <h3 className="font-semibold">Tasks</h3>
+      {/* Todo List */}
+      <Card className="bg-slate-800 border-slate-700">
+        <CardHeader className="border-b border-slate-700">
+          <h3 className="font-semibold text-slate-50">Tasks ({todos.length})</h3>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-0">
           {todos.length === 0 ? (
-            <p className="py-8 text-center text-sm text-muted-foreground">
-              No todos yet. Add one above.
-            </p>
+            <div className="py-16 text-center">
+              <CheckSquare2 className="w-12 h-12 text-slate-600 mx-auto mb-4" />
+              <p className="text-slate-400 text-lg">No tasks yet</p>
+              <p className="text-slate-500 text-sm mt-1">Create your first task to get started</p>
+            </div>
           ) : (
-            <ul className="space-y-3">
+            <ul className="divide-y divide-slate-700">
               {todos.map((todo) => (
                 <li
                   key={todo.id}
-                  className="flex flex-col gap-2 rounded-lg border bg-card p-4 transition-colors hover:bg-muted/30 sm:flex-row sm:items-center sm:gap-4"
+                  className="p-4 hover:bg-slate-700/50 transition group flex items-center gap-4"
                 >
-                  <div className="flex min-w-0 flex-1 items-start gap-3">
-                    <Checkbox
-                      id={`check-${todo.id}`}
-                      checked={todo.completed}
-                      onCheckedChange={() => handleToggleComplete(todo)}
-                      className="mt-0.5 shrink-0"
-                    />
-                    <div className="min-w-0 flex-1">
-                      <label
-                        htmlFor={`check-${todo.id}`}
-                        className={`cursor-pointer font-medium ${
-                          todo.completed ? "text-muted-foreground line-through" : ""
+                  <Checkbox
+                    id={`check-${todo.id}`}
+                    checked={todo.completed}
+                    onCheckedChange={() => handleToggleComplete(todo)}
+                    className="shrink-0 h-5 w-5 rounded border-slate-600 bg-slate-700 text-emerald-500"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <label
+                      htmlFor={`check-${todo.id}`}
+                      className={`cursor-pointer font-medium block ${
+                        todo.completed
+                          ? "text-slate-500 line-through"
+                          : "text-slate-50"
+                      }`}
+                    >
+                      {todo.title}
+                    </label>
+                    {todo.description && (
+                      <p
+                        className={`mt-1 text-sm line-clamp-2 ${
+                          todo.completed ? "text-slate-600" : "text-slate-400"
                         }`}
                       >
-                        {todo.title}
-                      </label>
-                      {todo.description && (
-                        <p className="mt-0.5 text-sm text-muted-foreground line-clamp-2">
-                          {todo.description}
-                        </p>
-                      )}
-                    </div>
+                        {todo.description}
+                      </p>
+                    )}
+                    <p className="mt-2 text-xs text-slate-500">
+                      {new Date(todo.createdAt).toLocaleDateString()}
+                    </p>
                   </div>
-                  <div className="flex items-center gap-2 sm:shrink-0">
+
+                  {/* Action Buttons */}
+                  <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition shrink-0">
                     <EditTodoDialog
                       todo={todo}
                       onSave={handleEdit}
@@ -247,18 +274,20 @@ export function TodoList({ initialTodos }: TodoListProps) {
                       open={deletingId === todo.id}
                       onOpenChange={(open) => !open && setDeletingId(null)}
                     >
-                      <AlertDialogContent>
+                      <AlertDialogContent className="bg-slate-800 border-slate-700">
                         <AlertDialogHeader>
-                          <AlertDialogTitle>Delete todo</AlertDialogTitle>
-                          <AlertDialogDescription>
+                          <AlertDialogTitle className="text-slate-50">Delete task?</AlertDialogTitle>
+                          <AlertDialogDescription className="text-slate-400">
                             Are you sure you want to delete &quot;{todo.title}&quot;? This cannot be undone.
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogCancel className="bg-slate-700 border-slate-600 text-slate-50 hover:bg-slate-600">
+                            Cancel
+                          </AlertDialogCancel>
                           <AlertDialogAction
                             onClick={() => handleDelete(todo.id)}
-                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                            className="bg-red-600 hover:bg-red-700 text-white"
                           >
                             Delete
                           </AlertDialogAction>
@@ -266,8 +295,8 @@ export function TodoList({ initialTodos }: TodoListProps) {
                       </AlertDialogContent>
                       <Button
                         variant="ghost"
-                        size="icon"
-                        className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+                        size="sm"
+                        className="text-slate-400 hover:text-red-400 hover:bg-red-500/10"
                         onClick={() => setDeletingId(todo.id)}
                       >
                         <Trash2 className="h-4 w-4" />
@@ -319,38 +348,53 @@ function EditTodoDialog({
           <span className="sr-only">Edit</span>
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="bg-slate-800 border-slate-700">
         <DialogHeader>
-          <DialogTitle>Edit todo</DialogTitle>
-          <DialogDescription>Change the title and description.</DialogDescription>
+          <DialogTitle className="text-slate-50">Edit Task</DialogTitle>
+          <DialogDescription className="text-slate-400">
+            Update the task details.
+          </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="edit-title">Title</Label>
+            <Label htmlFor="edit-title" className="text-slate-300">
+              Title
+            </Label>
             <Input
               id="edit-title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="Title"
+              placeholder="Task title"
               required
               maxLength={500}
+              className="bg-slate-700 border-slate-600 text-slate-50 placeholder:text-slate-500 focus:border-emerald-500"
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="edit-description">Description (optional)</Label>
+            <Label htmlFor="edit-description" className="text-slate-300">
+              Description (optional)
+            </Label>
             <Input
               id="edit-description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Description"
+              placeholder="Task description"
               maxLength={1000}
+              className="bg-slate-700 border-slate-600 text-slate-50 placeholder:text-slate-500 focus:border-emerald-500"
             />
           </div>
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setOpen(false)}
+              className="border-slate-600 text-slate-300 hover:bg-slate-700"
+            >
               Cancel
             </Button>
-            <Button type="submit">Save</Button>
+            <Button type="submit" className="bg-emerald-600 hover:bg-emerald-700 text-white">
+              Save Changes
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

@@ -1,163 +1,164 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
 import { getAvatarUrl } from "@/lib/avatar";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
+import { User, Mail, Lock, Loader2 } from "lucide-react";
 
 export default function RegisterPage() {
   const router = useRouter();
+
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const validate = (): string | null => {
-    const trimmedName = name.trim();
-    if (!trimmedName) return "Name is required.";
-    if (!email.trim()) return "Email is required.";
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) return "Please enter a valid email address.";
-    if (password.length < 8) return "Password must be at least 8 characters.";
-    if (password !== confirmPassword) return "Passwords do not match.";
+  const validate = () => {
+    if (!name.trim()) return "Name required";
+    if (!email.includes("@")) return "Invalid email";
+    if (password.length < 8) return "Min 8 chars";
+    if (password !== confirmPassword) return "Passwords mismatch";
     return null;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     const error = validate();
-    if (error) {
-      toast.error(error);
-      return;
-    }
+    if (error) return toast.error(error);
 
     try {
       setLoading(true);
-
       const image = getAvatarUrl(name);
 
       const { data, error } = await authClient.signUp.email({
-        name: name.trim(),
-        email: email.trim(),
+        name,
+        email,
         password,
         image,
         callbackURL: "/dashboard",
       });
 
-      if (error) {
-        toast.error(error.message ?? "Registration failed.");
-        return;
-      }
+      if (error) return toast.error(error.message);
 
-      if (data) {
-        toast.success("Account created successfully. Welcome!");
-        router.push("/dashboard");
-        router.refresh();
-      }
-    } catch (err: unknown) {
-      console.error(err);
-      toast.error("Something went wrong. Please try again.");
+      toast.success("Account created");
+      router.push("/dashboard");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-background via-background to-muted/30 px-4 py-10">
-      <Card className="w-full max-w-md border-0 shadow-xl shadow-primary/5 sm:border">
-        <CardHeader className="space-y-1 text-center">
-          <CardTitle className="text-2xl font-semibold tracking-tight">Create an account</CardTitle>
-          <CardDescription>Enter your details to get started with your to-do list.</CardDescription>
-        </CardHeader>
+    <div className="min-h-screen bg-linear-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4">
+      <div className="w-full max-w-md">
+        {/* Logo & Title */}
+        <div className="text-center mb-8">
+          <div className="flex items-center justify-center gap-2 mb-4">
+            <div className="w-10 h-10 bg-emerald-600 rounded-lg flex items-center justify-center">
+              <span className="text-white font-bold text-lg">T</span>
+            </div>
+            <span className="text-2xl font-bold text-slate-50">Taskly</span>
+          </div>
+          <h1 className="text-3xl font-bold text-slate-50 mb-2">Create Account</h1>
+          <p className="text-slate-400">Join Taskly today</p>
+        </div>
 
-        <form onSubmit={handleSubmit}>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">Name</Label>
-              <Input
-                id="name"
-                type="text"
-                placeholder="e.g. John Doe"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                disabled={loading}
-                autoComplete="name"
-                className="h-10"
-              />
+        {/* Card */}
+        <div className="bg-slate-800 border border-slate-700 rounded-lg p-8 space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Name Field */}
+            <div>
+              <label className="block text-sm font-medium text-slate-200 mb-2">Full Name</label>
+              <div className="relative">
+                <User className="absolute left-3 top-3 w-5 h-5 text-slate-500" />
+                <input
+                  type="text"
+                  placeholder="John Doe"
+                  className="w-full pl-10 pr-4 py-2 bg-slate-700 border border-slate-600 text-slate-50 rounded-lg focus:outline-none focus:border-emerald-500 transition"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                />
+              </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="you@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                disabled={loading}
-                autoComplete="email"
-                className="h-10"
-              />
+            {/* Email Field */}
+            <div>
+              <label className="block text-sm font-medium text-slate-200 mb-2">Email</label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-3 w-5 h-5 text-slate-500" />
+                <input
+                  type="email"
+                  placeholder="you@example.com"
+                  className="w-full pl-10 pr-4 py-2 bg-slate-700 border border-slate-600 text-slate-50 rounded-lg focus:outline-none focus:border-emerald-500 transition"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="At least 8 characters"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                disabled={loading}
-                autoComplete="new-password"
-                className="h-10"
-              />
+            {/* Password Field */}
+            <div>
+              <label className="block text-sm font-medium text-slate-200 mb-2">Password</label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-3 w-5 h-5 text-slate-500" />
+                <input
+                  type="password"
+                  placeholder="••••••••"
+                  className="w-full pl-10 pr-4 py-2 bg-slate-700 border border-slate-600 text-slate-50 rounded-lg focus:outline-none focus:border-emerald-500 transition"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+              </div>
+              <p className="text-xs text-slate-400 mt-1">Min 8 characters</p>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirm password</Label>
-              <Input
-                id="confirmPassword"
-                type="password"
-                placeholder="Repeat your password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                disabled={loading}
-                autoComplete="new-password"
-                className="h-10"
-              />
+            {/* Confirm Password Field */}
+            <div>
+              <label className="block text-sm font-medium text-slate-200 mb-2">Confirm Password</label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-3 w-5 h-5 text-slate-500" />
+                <input
+                  type="password"
+                  placeholder="••••••••"
+                  className="w-full pl-10 pr-4 py-2 bg-slate-700 border border-slate-600 text-slate-50 rounded-lg focus:outline-none focus:border-emerald-500 transition"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                />
+              </div>
             </div>
 
-            <Separator className="my-4" />
-
-            <Button
+            {/* Submit Button */}
+            <button
               type="submit"
-              className="w-full h-10 font-medium"
               disabled={loading}
+              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2 rounded-lg font-medium transition disabled:opacity-50 mt-6 flex items-center justify-center gap-2"
             >
-              {loading ? "Creating account…" : "Create account"}
-            </Button>
-          </CardContent>
+              {loading ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" /> Creating account...
+                </>
+              ) : (
+                "Create Account"
+              )}
+            </button>
+          </form>
 
-          <CardFooter className="flex flex-col gap-4 mt-4">
-            <p className="text-center text-sm text-muted-foreground">
-              Already have an account?{" "}
-              <Link href="/login" className="font-medium text-primary underline-offset-4 hover:underline">
-                Sign in
-              </Link>
-            </p>
-          </CardFooter>
-        </form>
-      </Card>
+          {/* Sign In Link */}
+          <p className="text-center text-sm text-slate-400">
+            Already have an account?{" "}
+            <Link href="/login" className="text-emerald-500 hover:text-emerald-400 font-medium">
+              Sign in
+            </Link>
+          </p>
+        </div>
+      </div>
     </div>
   );
 }

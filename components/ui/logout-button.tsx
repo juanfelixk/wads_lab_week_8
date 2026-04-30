@@ -16,6 +16,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
+import { LogOut } from "lucide-react";
 
 export default function LogoutButton() {
   const router = useRouter();
@@ -51,19 +52,28 @@ export default function LogoutButton() {
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button variant="destructive">Log out</Button>
+        <Button className="w-full bg-slate-700 hover:bg-slate-600 text-slate-300 border border-slate-600 justify-start gap-2">
+          <LogOut className="w-4 h-4" />
+          Sign Out
+        </Button>
       </AlertDialogTrigger>
-      <AlertDialogContent>
+      <AlertDialogContent className="bg-slate-800 border-slate-700">
         <AlertDialogHeader>
-          <AlertDialogTitle>Sign out</AlertDialogTitle>
-          <AlertDialogDescription>
-            Are you sure you want to sign out?
+          <AlertDialogTitle className="text-slate-50">Sign out?</AlertDialogTitle>
+          <AlertDialogDescription className="text-slate-400">
+            Are you sure you want to sign out from your account?
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={handleLogout} disabled={loading}>
-            {loading ? "Signing out…" : "Yes, sign out"}
+          <AlertDialogCancel className="bg-slate-700 border-slate-600 text-slate-50 hover:bg-slate-600">
+            Cancel
+          </AlertDialogCancel>
+          <AlertDialogAction
+            onClick={handleLogout}
+            disabled={loading}
+            className="bg-red-600 hover:bg-red-700 text-white"
+          >
+            {loading ? "Signing out..." : "Sign Out"}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
